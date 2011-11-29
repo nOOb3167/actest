@@ -9,6 +9,7 @@
 #include <aiPostProcess.h>
 #include <src/error.h>
 /* #include <src/mai-model.h> */
+#include <src/stage.h>
 
 #define xassert(exp) do { ((exp)?0:++(*((char *)0x00000010))); } while (0)
 
@@ -398,58 +399,33 @@ derp (void)
 
   check_gl_error ();
 
+  struct DepthData ds;
+  ds.fbo = fbo;
+  ds.ab = ab;
+  ds.cat0_loc = dpp_cat0_loc;
+
+  depth_bind (&ds);
+
   {
-    glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, fbo);
-    glBindBuffer (GL_ARRAY_BUFFER, ab);
-    glEnableVertexAttribArray (dpp_cat0_loc);
-
-    glVertexAttribPointer (dpp_cat0_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-    {
-      glPushAttrib (GL_VIEWPORT_BIT | GL_TRANSFORM_BIT);
-      glViewport (0, 0, 640, 480);
-
-      check_gl_error ();
-
-      /* Depth State */
-      glDepthFunc (GL_LEQUAL);
-      glEnable (GL_DEPTH_TEST);
-      glClearDepth (1.0f);
-
-      /* Masks */
-      glDepthMask (GL_TRUE);
-      glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-      {
-        glMatrixMode (GL_PROJECTION);
-        glPushMatrix ();
-        glLoadIdentity ();
-        glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
-        //gluPerspective (45.0f, 1.0f, 0.1f, 10.1f);
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
+    //gluPerspective (45.0f, 1.0f, 0.1f, 10.1f);
 
 
-        glDrawBuffer (GL_COLOR_ATTACHMENT0);
-        glClear (GL_DEPTH_BUFFER_BIT);
+    glDrawBuffer (GL_COLOR_ATTACHMENT0);
+    glClear (GL_DEPTH_BUFFER_BIT);
 
-        glUseProgram (dpp);
-        glDrawArrays (GL_TRIANGLES, 0, me->mNumFaces * 3);
-        glUseProgram (0);
+    glUseProgram (dpp);
+    glDrawArrays (GL_TRIANGLES, 0, me->mNumFaces * 3);
+    glUseProgram (0);
 
-        glMatrixMode (GL_PROJECTION);
-        glPopMatrix ();
-      }
-
-      glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-      glDisable (GL_DEPTH_TEST);
-
-      glPopAttrib ();
-    }
-
-    glDisableVertexAttribArray (dpp_cat0_loc);
-    glBindBuffer (GL_ARRAY_BUFFER, 0);
-    glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
+    glMatrixMode (GL_PROJECTION);
+    glPopMatrix ();
   }
+
+  depth_unbind (&ds);
 
   check_gl_error ();
 

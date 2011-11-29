@@ -15,5 +15,5 @@ struct DepthData
   gint _cmask[4];
 };
 
-void depth_bind (struct DepthData ds);
-void depth_unbind (struct DepthData ds);
+void depth_bind (struct DepthData *ds);
+void depth_unbind (struct DepthData *ds);
