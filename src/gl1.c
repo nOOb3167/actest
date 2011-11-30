@@ -1,4 +1,4 @@
-#include <stdlib.h>
+a#include <stdlib.h>
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_opengl.h>
@@ -22,26 +22,6 @@ int check_gl_error (void)
   if (GL_NO_ERROR != err) printf ("GLERROR: %x\n", err);
   xassert (GL_NO_ERROR == err);
 }
-
-/* int */
-/* mmstuff (void) */
-/* { */
-/*   struct aiScene *scene; */
-/*   mai_model_new_from_file ("../misc/gl1_1.dae", &scene); */
-
-/*   g_xassert (scene->mNumMaterials >= 1); */
-
-/*   struct aiMaterial *mat; */
-/*   mat = scene->mMaterials[0]; */
-
-/*   struct aiColor4D col_diff; */
-/*   g_xassert (AI_SUCCESS == */
-/*              aiGetMaterialColor (mat, AI_MATKEY_COLOR_DIFFUSE, &col_diff)); */
-
-/*   struct aiColor4D col_spec; */
-/*   g_xassert (AI_SUCCESS == */
-/*              aiGetMaterialColor (mat, AI_MATKEY_COLOR_SPECULAR, &col_spec)); */
-/* } */
 
 int
 make_fbo (void)
