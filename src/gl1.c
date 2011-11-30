@@ -1,4 +1,4 @@
-a#include <stdlib.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_opengl.h>
@@ -406,14 +406,12 @@ derp (void)
 
   check_gl_error ();
 
-  /* Draw depth texture */
-  glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
-
-  check_gl_error ();
-
-  glMatrixMode (GL_MODELVIEW);
-  glLoadIdentity ();
-
+  /**
+   * Draw depth texture.
+   * Assume the previous stages did not mess the data up too much.
+   * In particular, assume the fbo binding was left unchanged,
+   * same for the PROJECTION and MODELVIEW matrix stacks.
+   */
   glEnable (GL_TEXTURE_2D);
   glUseProgram (0);
 
@@ -478,10 +476,6 @@ main (int argc, char **argv)
   g_xassert (al_get_opengl_extension_list ()->ALLEGRO_GL_ARB_framebuffer_object);
 
   al_set_target_backbuffer (disp);
-
-  ALLEGRO_BITMAP *bmp;
-  bmp = al_create_bitmap (640, 480);
-  xassert (bmp);
 
   printf ("OPENGL %x\n", al_get_opengl_version ());
 
