@@ -391,18 +391,12 @@ derp (void)
 
   dpp = depth_pass_program ();
 
-  /* The vertex buffer containing geometry data will be bound
-     to generic attribute cat0 later, get its location. */
-
-  dpp_cat0_loc = glGetAttribLocation (dpp, "cat0");
-  xassert (-1 != dpp_cat0_loc);
-
   check_gl_error ();
 
   struct DepthData ds;
   ds.fbo = fbo;
   ds.ab = ab;
-  ds.cat0_loc = dpp_cat0_loc;
+  ds.dpp = dpp;
 
   depth_bind (&ds);
 
@@ -417,7 +411,10 @@ derp (void)
     glDrawBuffer (GL_COLOR_ATTACHMENT0);
     glClear (GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram (dpp);
+    glBindBuffer (GL_ARRAY_BUFFER, ds.ab);
+    glVertexAttribPointer (ds._cat0_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glUseProgram (ds.dpp);
     glDrawArrays (GL_TRIANGLES, 0, me->mNumFaces * 3);
     glUseProgram (0);
 
@@ -457,6 +454,24 @@ derp (void)
   glEnd();
 
   check_gl_error ();
+
+
+  /**
+   * Material stuff, move elsewhere or something.
+   */
+  struct aiMaterial *mat;
+  struct aiColor4D col_diff;
+  struct aiColor4D col_spec;
+
+  g_xassert (sc->mNumMaterials >= 1);
+
+  mat = sc->mMaterials[me->mMaterialIndex];
+
+  g_xassert (AI_SUCCESS ==
+             aiGetMaterialColor (mat, AI_MATKEY_COLOR_DIFFUSE, &col_diff));
+
+  g_xassert (AI_SUCCESS ==
+             aiGetMaterialColor (mat, AI_MATKEY_COLOR_SPECULAR, &col_spec));
 }
 
 int

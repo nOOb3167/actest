@@ -6,7 +6,9 @@ struct DepthData
 {
   GLuint fbo;
   GLuint ab;
-  GLuint cat0_loc;
+  GLuint dpp;
+
+  GLuint _cat0_loc;
 
   gint _dtest;
   gint _dfunc;

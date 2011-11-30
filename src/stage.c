@@ -1,3 +1,4 @@
+#include <src/error.h>
 #include <src/stage.h>
 
 /**
@@ -10,6 +11,9 @@
 void
 depth_bind (struct DepthData *ds)
 {
+  /**
+   * Could use GL_DEPTH_BUFFER_BIT with glPushAttrib instead etc.
+   */
   glGetIntegerv (GL_DEPTH_TEST, &ds->_dtest);
   glGetIntegerv (GL_DEPTH_FUNC, &ds->_dfunc);
   glGetIntegerv (GL_DEPTH_CLEAR_VALUE, &ds->_dclear);
@@ -22,11 +26,11 @@ depth_bind (struct DepthData *ds)
   glDepthMask (GL_TRUE);
   glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-  glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, ds->fbo);
+  ds->_cat0_loc = glGetAttribLocation (ds->dpp, "cat0");
+  g_xassert (-1 != ds->_cat0_loc);
+  glEnableVertexAttribArray (ds->_cat0_loc);
 
-  glBindBuffer (GL_ARRAY_BUFFER, ds->ab);
-  glEnableVertexAttribArray (ds->cat0_loc);
-  glVertexAttribPointer (ds->cat0_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, ds->fbo);
 
   glPushAttrib (GL_VIEWPORT_BIT | GL_TRANSFORM_BIT);
   glViewport (0, 0, 640, 480);
@@ -45,7 +49,7 @@ depth_unbind (struct DepthData *ds)
   glColorMask (ds->_cmask[0], ds->_cmask[1], ds->_cmask[2], ds->_cmask[3]);
 
   glPopAttrib ();
-  glDisableVertexAttribArray (ds->cat0_loc);
+  glDisableVertexAttribArray (ds->_cat0_loc);
   glBindBuffer (GL_ARRAY_BUFFER, 0);
   glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
 }
