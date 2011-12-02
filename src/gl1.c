@@ -236,6 +236,113 @@ depth_pass_program (void)
   return prog;
 }
 
+void
+mesh_arrays_extract (struct aiMesh *me,
+                     GLfloat **v,
+                     GLfloat **n,
+                     GLfloat **t,
+                     gint *len_out)
+{
+  gint req;
+  GLfloat *abbuf;
+  
+  /* Ensure triangles only */
+  g_xassert (aiPrimitiveType_TRIANGLE == me->mPrimitiveTypes);
+
+  g_xassert (me->mNumVertices &&
+             /**
+              * Well looks like noone thought to provide that in C API
+              * // me->mNumNormals &&
+              */
+             me->mNumUVComponents[0]);
+
+  /* Calculate the required size.
+     A triangle face has 3 vertices, of 3 float components each.
+     A float takes sizeof bmu. */
+  req = me->mNumFaces * 3 * 3 * sizeof (*abbuf);
+
+  *v = (GLfloat *)g_malloc (req);
+  *n = (GLfloat *)g_malloc (req);
+  *t = (GLfloat *)g_malloc (req);
+  xassert (v && n && t);
+
+  for (int i = 0; i < me->mNumFaces; ++i)
+    {
+      struct aiFace *fa;
+
+      fa = &me->mFaces[i];
+      g_xassert (3 == fa->mNumIndices);
+
+      for (int j = 0; j < 3; ++j)
+        {
+          /**
+           * One triangle is 3 times 3 floats
+           * f,f,f
+           * f,f,f
+           * f,f,f
+           * One pass from this loop gets one f,f,f group.
+           * Need to advance by 3 each pass, to a total of 9.
+           */
+          struct aiVector3D *vt;
+          struct aiVector3D *nr;
+          struct aiVector3D *tx;
+
+          vt = &me->mVertices[fa->mIndices[j]];
+          nr = &me->mNormals[fa->mIndices[j]];
+          tx = &me->mTextureCoords[0][fa->mIndices[j]];
+
+          (*v)[(3 * 3 * i) + (3 * j + 0)] = vt->x;
+          (*v)[(3 * 3 * i) + (3 * j + 1)] = vt->y;
+          (*v)[(3 * 3 * i) + (3 * j + 2)] = vt->z;
+          (*n)[(3 * 3 * i) + (3 * j + 0)] = nr->x;
+          (*n)[(3 * 3 * i) + (3 * j + 1)] = nr->y;
+          (*n)[(3 * 3 * i) + (3 * j + 2)] = nr->z;
+          (*t)[(3 * 3 * i) + (3 * j + 0)] = tx->x;
+          (*t)[(3 * 3 * i) + (3 * j + 1)] = tx->y;
+          (*t)[(3 * 3 * i) + (3 * j + 2)] = tx->z;
+        }      
+    }
+
+  *len_out = req;
+}
+
+GLuint
+mesh_buffers_extract (struct aiMesh *me,
+                      GLuint *vb_out,
+                      GLuint *nb_out,
+                      GLuint *tb_out)
+{
+  gint req;
+  GLuint vb, nb, tb;
+  GLfloat *v, *n, *t;
+  
+  mesh_arrays_extract (me, &v, &n, &t, &req);
+  
+  glGenBuffers (1, &vb);
+  glBindBuffer (GL_ARRAY_BUFFER, vb);
+  glBufferData (GL_ARRAY_BUFFER,
+                req, v,
+                GL_STREAM_DRAW);
+
+  glGenBuffers (1, &nb);
+  glBindBuffer (GL_ARRAY_BUFFER, nb);
+  glBufferData (GL_ARRAY_BUFFER,
+                req, n,
+                GL_STREAM_DRAW);
+
+  glGenBuffers (1, &tb);
+  glBindBuffer (GL_ARRAY_BUFFER, tb);
+  glBufferData (GL_ARRAY_BUFFER,
+                req, t,
+                GL_STREAM_DRAW);
+
+  glBindBuffer (GL_ARRAY_BUFFER, 0);
+
+  *vb_out = vb;
+  *nb_out = nb;
+  *tb_out = tb;
+}
+
 GLfloat *
 mesh_to_float (struct aiMesh *me, gint *len_out)
 {
@@ -327,7 +434,9 @@ derp (void)
 
   g_xassert (aiPrimitiveType_TRIANGLE == me->mPrimitiveTypes);
 
-  ab = mesh_to_buffer (me);
+  //ab = mesh_to_buffer (me);
+  GLuint x1,x2;
+  mesh_buffers_extract (me, &ab, &x1, &x2);
 
   /* Create two textures, a color and a depth. */
 
