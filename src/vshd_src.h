@@ -12,7 +12,7 @@
  * doing so seems not to produce material related data.
  */
 
-const GLchar *vshd_depth_src[] = {"\
+static const GLchar *vshd_depth_src[] = {"\
 attribute vec4 cat0;\
 \
 void main(void)\
@@ -21,7 +21,7 @@ void main(void)\
 }\
 "};
 
-const GLchar *vshd_src[] = {"\
+static const GLchar *vshd_src[] = {"\
 attribute vec4 cat0;   \
 \
 void main(void)\
@@ -30,7 +30,7 @@ void main(void)\
 }\
 "};
 
-const GLchar *fshd_src[] = {"\
+static const GLchar *fshd_src[] = {"\
 void main()\
 {\
   gl_FragData[0] = vec4(1.0, 0.0, 0.0, 1.0);\

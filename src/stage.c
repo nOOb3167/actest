@@ -1,33 +1,44 @@
+#include <stdio.h>
 #include <src/error.h>
 #include <src/stage.h>
+#include <src/vshd_src.h>
 
-/* GLuint */
-/* depth_pass_program (void) */
-/* { */
-/*   GLint status; */
-/*   GLuint vshd; */
-/*   GLuint prog; */
+int
+check_gl_error (void)
+{
+  GLenum err;
+  err = glGetError ();
+  if (GL_NO_ERROR != err) printf ("GLERROR: %x\n", err);
+  g_xassert (GL_NO_ERROR == err);
+}
 
-/*   vshd = glCreateShader (GL_VERTEX_SHADER); */
-/*   glShaderSource (vshd, 1, vshd_depth_src, NULL); */
-/*   glCompileShader (vshd); */
+GLuint
+depth_pass_program (void)
+{
+  GLint status;
+  GLuint vshd;
+  GLuint prog;
+
+  vshd = glCreateShader (GL_VERTEX_SHADER);
+  glShaderSource (vshd, 1, vshd_depth_src, NULL);
+  glCompileShader (vshd);
   
-/*   glGetShaderiv (vshd, GL_COMPILE_STATUS, &status); */
-/*   xassert (GL_TRUE == status); */
+  glGetShaderiv (vshd, GL_COMPILE_STATUS, &status);
+  g_xassert (GL_TRUE == status);
 
-/*   check_gl_error (); */
+  check_gl_error ();
 
-/*   prog = glCreateProgram (); */
-/*   glAttachShader (prog, vshd); */
-/*   glLinkProgram (prog); */
+  prog = glCreateProgram ();
+  glAttachShader (prog, vshd);
+  glLinkProgram (prog);
   
-/*   glGetProgramiv (prog, GL_LINK_STATUS, &status); */
-/*   xassert (GL_TRUE == status); */
+  glGetProgramiv (prog, GL_LINK_STATUS, &status);
+  g_xassert (GL_TRUE == status);
 
-/*   check_gl_error (); */
+  check_gl_error ();
 
-/*   return prog; */
-/* } */
+  return prog;
+}
 
 /**
  * Garbles:

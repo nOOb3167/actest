@@ -15,14 +15,6 @@
 
 #include <src/vshd_src.h>
 
-int check_gl_error (void)
-{
-  GLenum err;
-  err = glGetError ();
-  if (GL_NO_ERROR != err) printf ("GLERROR: %x\n", err);
-  xassert (GL_NO_ERROR == err);
-}
-
 int
 make_fbo (void)
 {
@@ -206,34 +198,6 @@ make_fbo (void)
   glTexCoord2f(1, 1); glVertex2f(100, 250);
   glTexCoord2f(0, 1); glVertex2f(0, 250);
   glEnd();
-}
-
-GLuint
-depth_pass_program (void)
-{
-  GLint status;
-  GLuint vshd;
-  GLuint prog;
-
-  vshd = glCreateShader (GL_VERTEX_SHADER);
-  glShaderSource (vshd, 1, vshd_depth_src, NULL);
-  glCompileShader (vshd);
-  
-  glGetShaderiv (vshd, GL_COMPILE_STATUS, &status);
-  xassert (GL_TRUE == status);
-
-  check_gl_error ();
-
-  prog = glCreateProgram ();
-  glAttachShader (prog, vshd);
-  glLinkProgram (prog);
-  
-  glGetProgramiv (prog, GL_LINK_STATUS, &status);
-  xassert (GL_TRUE == status);
-
-  check_gl_error ();
-
-  return prog;
 }
 
 void

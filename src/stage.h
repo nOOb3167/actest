@@ -2,6 +2,9 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_opengl.h>
 
+int check_gl_error (void);
+GLuint depth_pass_program (void);
+
 struct DepthData
 {
   GLuint fbo;
