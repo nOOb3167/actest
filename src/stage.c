@@ -1,6 +1,34 @@
 #include <src/error.h>
 #include <src/stage.h>
 
+/* GLuint */
+/* depth_pass_program (void) */
+/* { */
+/*   GLint status; */
+/*   GLuint vshd; */
+/*   GLuint prog; */
+
+/*   vshd = glCreateShader (GL_VERTEX_SHADER); */
+/*   glShaderSource (vshd, 1, vshd_depth_src, NULL); */
+/*   glCompileShader (vshd); */
+  
+/*   glGetShaderiv (vshd, GL_COMPILE_STATUS, &status); */
+/*   xassert (GL_TRUE == status); */
+
+/*   check_gl_error (); */
+
+/*   prog = glCreateProgram (); */
+/*   glAttachShader (prog, vshd); */
+/*   glLinkProgram (prog); */
+  
+/*   glGetProgramiv (prog, GL_LINK_STATUS, &status); */
+/*   xassert (GL_TRUE == status); */
+
+/*   check_gl_error (); */
+
+/*   return prog; */
+/* } */
+
 /**
  * Garbles:
  * FBO binding
@@ -52,4 +80,28 @@ depth_unbind (struct DepthData *ds)
   glDisableVertexAttribArray (ds->_cat0_loc);
   glBindBuffer (GL_ARRAY_BUFFER, 0);
   glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
+}
+
+void material_bind (struct MaterialData *ms)
+{
+  ms->_cat0_loc = glGetAttribLocation (ms->mpp, "cat0");
+  ms->_cat1_nor = glGetAttribLocation (ms->mpp, "cat1");
+  ms->_cat2_tex = glGetAttribLocation (ms->mpp, "cat2");
+
+  g_xassert (-1 != ms->_cat0_loc);
+  g_xassert (-1 != ms->_cat1_nor);
+  g_xassert (-1 != ms->_cat2_tex);
+  
+  glEnableVertexAttribArray (ms->_cat0_loc);
+  glEnableVertexAttribArray (ms->_cat1_nor);
+  glEnableVertexAttribArray (ms->_cat2_tex);
+
+  glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, ms->fbo);
+
+  glPushAttrib (GL_VIEWPORT_BIT | GL_TRANSFORM_BIT);
+  glViewport (0, 0, 640, 480);
+}
+
+void material_unbind (struct MaterialData *ms)
+{
 }

@@ -407,7 +407,7 @@ derp (void)
   check_gl_error ();
 
   /**
-   * Draw depth texture.
+   * draw depth texture.
    * Assume the previous stages did not mess the data up too much.
    * In particular, assume the fbo binding was left unchanged,
    * same for the PROJECTION and MODELVIEW matrix stacks.

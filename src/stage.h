@@ -17,5 +17,25 @@ struct DepthData
   gint _cmask[4];
 };
 
+/* GLuint depth_pass_program (void); */
 void depth_bind (struct DepthData *ds);
 void depth_unbind (struct DepthData *ds);
+
+struct MaterialData
+{
+  GLuint fbo;
+  GLuint ctex;
+  GLuint dtex;
+  GLuint mpp;
+
+  GLuint _cat0_loc;
+  GLuint _cat1_nor;
+  GLuint _cat2_tex;
+  
+  /* GLuint vertb; */
+  /* GLuint normb; */
+  /* GLuint textb; */
+};
+
+void material_bind (struct MaterialData *ms);
+void material_unbind (struct MaterialData *ms);
