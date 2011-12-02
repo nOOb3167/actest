@@ -343,72 +343,6 @@ mesh_buffers_extract (struct aiMesh *me,
   *tb_out = tb;
 }
 
-GLfloat *
-mesh_to_float (struct aiMesh *me, gint *len_out)
-{
-  gint req;
-  GLfloat *abbuf;
-  
-  /* Ensure triangles only */
-  g_xassert (aiPrimitiveType_TRIANGLE == me->mPrimitiveTypes);
-
-  /* Calculate the required size.
-     A triangle face has 3 vertices, of 3 float components each.
-     A float takes sizeof bmu. */
-  req = me->mNumFaces * 3 * 3 * sizeof (*abbuf);
-
-  abbuf = (GLfloat *)g_malloc (req);
-  xassert (abbuf);
-
-  for (int i = 0; i < me->mNumFaces; ++i)
-    {
-      struct aiFace *f;
-      struct aiVector3D *v;
-
-      f = &me->mFaces[i];
-      g_xassert (3 == f->mNumIndices);
-
-      v = &me->mVertices[f->mIndices[0]];
-      abbuf[(3 * 3 * i) + 0] = v->x;
-      abbuf[(3 * 3 * i) + 1] = v->y;
-      abbuf[(3 * 3 * i) + 2] = v->z;
-
-      v = &me->mVertices[f->mIndices[1]];
-      abbuf[(3 * 3 * i) + 3] = v->x;
-      abbuf[(3 * 3 * i) + 4] = v->y;
-      abbuf[(3 * 3 * i) + 5] = v->z;
-
-      v = &me->mVertices[f->mIndices[2]];
-      abbuf[(3 * 3 * i) + 6] = v->x;
-      abbuf[(3 * 3 * i) + 7] = v->y;
-      abbuf[(3 * 3 * i) + 8] = v->z;
-    }
-
-  *len_out = req;
-
-  return abbuf;
-}
-
-GLuint
-mesh_to_buffer (struct aiMesh *me)
-{
-  gint req;
-  GLuint ab;
-  GLfloat *abbuf;
-  
-  abbuf = mesh_to_float (me, &req);
-  g_xassert (abbuf);
-  
-  glGenBuffers (1, &ab);
-  glBindBuffer (GL_ARRAY_BUFFER, ab);
-  glBufferData (GL_ARRAY_BUFFER,
-                req, abbuf,
-                GL_STREAM_DRAW);
-  glBindBuffer (GL_ARRAY_BUFFER, 0);
-
-  return ab;
-}
-
 void
 derp (void)
 {
@@ -434,7 +368,6 @@ derp (void)
 
   g_xassert (aiPrimitiveType_TRIANGLE == me->mPrimitiveTypes);
 
-  //ab = mesh_to_buffer (me);
   GLuint x1,x2;
   mesh_buffers_extract (me, &ab, &x1, &x2);
 
