@@ -502,6 +502,9 @@ derp (void)
      * while glActiveTexture is zero.
      */
     glUniform1i (ms._tex0, 0);
+
+    /* Fix uv loading from assimp */
+    /* Also go load diffuse, specular out of the aiColor4Ds */
     
     glActiveTexture (0);
     glEnable (GL_TEXTURE_2D);

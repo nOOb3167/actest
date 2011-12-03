@@ -145,7 +145,6 @@ void material_bind (struct MaterialData *ms)
   ms->_cat1_nor = glGetAttribLocation (ms->mpp, "cat1");
   ms->_cat2_tex = glGetAttribLocation (ms->mpp, "cat2");
   ms->_tex0 = glGetUniformLocation (ms->mpp, "tex0");
-  ms->_normal = glGetUniformLocation (ms->mpp, "normal");
   ms->_diffuse = glGetUniformLocation (ms->mpp, "diffuse");
   ms->_specular = glGetUniformLocation (ms->mpp, "specular");
 
@@ -153,8 +152,7 @@ void material_bind (struct MaterialData *ms)
   g_xassert (-1 != ms->_cat1_nor);
   g_xassert (-1 != ms->_cat2_tex);
   g_xassert (-1 != ms->_tex0);
-  g_xassert (-1 != ms->_normal &&
-             -1 != ms->_diffuse &&
+  g_xassert (-1 != ms->_diffuse &&
              -1 != ms->_specular);
   
   glEnableVertexAttribArray (ms->_cat0_loc);

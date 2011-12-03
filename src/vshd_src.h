@@ -27,7 +27,6 @@ attribute vec4 cat1;\
 attribute vec4 cat2;\
 uniform sampler2D tex0;\
 \
-uniform vec4 normal;\
 uniform vec4 diffuse;\
 uniform vec4 specular;\
 \
@@ -38,7 +37,7 @@ varying vec2 uv;\
 \
 void main(void)\
 {\
-  nor = normal;\
+  nor = cat1;\
   spe = specular;\
   dif = diffuse;\
   uv = vec2(cat2.xy);\
@@ -52,7 +51,6 @@ attribute vec4 cat1;\
 attribute vec4 cat2;\
 uniform sampler2D tex0;\
 \
-uniform vec4 normal;\
 uniform vec4 diffuse;\
 uniform vec4 specular;\
 \
@@ -67,7 +65,7 @@ void main(void)\
 \
   color = texture2D(tex0, uv);\
 \
-  gl_FragData[0] = vec4(nor);\
+  gl_FragData[0] = vec4(nor.xyz, 0);              \
   gl_FragData[1] = vec4(color*dif);\
   gl_FragData[2] = vec4(spe);\
 }\

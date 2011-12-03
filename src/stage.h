@@ -40,7 +40,7 @@ struct MaterialData
   GLuint _cat1_nor;
   GLuint _cat2_tex;
   GLuint _tex0;
-  GLuint _normal, _diffuse, _specular;
+  GLuint _diffuse, _specular;
   
   /* GLuint vertb; */
   /* GLuint normb; */
