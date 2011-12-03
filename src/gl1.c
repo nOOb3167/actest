@@ -218,7 +218,7 @@ mesh_arrays_extract (struct aiMesh *me,
               * Well looks like noone thought to provide that in C API
               * // me->mNumNormals &&
               */
-             me->mNumUVComponents[0]);
+             2 == me->mNumUVComponents[0]);
 
   /* Calculate the required size.
      A triangle face has 3 vertices, of 3 float components each.
@@ -247,9 +247,11 @@ mesh_arrays_extract (struct aiMesh *me,
            * One pass from this loop loads one f,f,f group.
            * Need to advance by 3 each pass, to a total of 9.
            *
-           * Similar for normals, but for tex coordinates,
-           * should probably depend on mNumUVComponents.
-           * IE source data is f,f load as f,f,0
+           * Tex coordinates load as f,f,f at the moment even though
+           * mNumUVComponents[0] might be for example 2.
+           * Code wise this is not a problem as the mTextureCoords[0],
+           * is an array of aiVector3D, has 3 components.
+           * (With 2 UV, the third will just end up bogus)
            */
           struct aiVector3D *vt;
           struct aiVector3D *nr;
@@ -503,7 +505,6 @@ derp (void)
      */
     glUniform1i (ms._tex0, 0);
 
-    /* Fix uv loading from assimp */
     /* Also go load diffuse, specular out of the aiColor4Ds */
     
     glActiveTexture (0);
