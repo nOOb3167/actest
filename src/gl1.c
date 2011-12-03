@@ -506,6 +506,9 @@ derp (void)
     glBindBuffer (GL_ARRAY_BUFFER, ms.tb);
     glVertexAttribPointer (ms._cat2_tex, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+    /* Program needs to be active to load Uniforms */
+    glUseProgram (ms.mpp);
+
     /**
      * Texture unit 0,
      * make sure diffuse / color texture is glBindTexture'd
@@ -519,8 +522,8 @@ derp (void)
     glEnable (GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, ms.ctex);
 
-    glUseProgram (ms.mpp);
     glDrawArrays (GL_TRIANGLES, 0, me->mNumFaces * 3);
+
     glUseProgram (0);
 
     glMatrixMode (GL_PROJECTION);
@@ -528,6 +531,8 @@ derp (void)
   }
 
   material_unbind (&ms);
+
+  debug_draw_tex_quad (ctex, 200, 0, 100, 100);
 }
 
 int
