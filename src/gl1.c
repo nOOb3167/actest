@@ -507,7 +507,7 @@ derp (void)
 
     /* Also go load diffuse, specular out of the aiColor4Ds */
     
-    glActiveTexture (0);
+    glActiveTexture (GL_TEXTURE0);
     glEnable (GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, ms.ctex);
 
