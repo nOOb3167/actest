@@ -481,7 +481,7 @@ derp (void)
    */
   struct MaterialData ms;
   ms.fbo = fbo;
-  ms.ctex = ctex; /* Load the mesh texture somehow, dummy for now */
+  ms.ctex = blender_tex;
   ms.dtex = dtex;
   ms.mpp = material_pass_program ();
   ms.vb = vb;
@@ -536,6 +536,11 @@ derp (void)
 
   material_unbind (&ms);
 
+  /**
+   * I believe I don't have the right COLOR_ATTACHMENTs during material stage.
+   * In any case ctex probably ends up as normals.
+   * Creating a new FBO for the material stage is probably ok.
+   */
   debug_draw_tex_quad (ctex, 200, 0, 100, 100);
 }
 
