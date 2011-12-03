@@ -21,6 +21,51 @@ void main(void)\
 }\
 "};
 
+static const GLchar *vshd_material_src[] = {"\
+attribute vec4 cat0;\
+attribute vec4 cat1;\
+attribute vec4 cat2;\
+uniform sampler2D tex0;\
+\
+uniform vec4 normal;\
+uniform vec4 diffuse;\
+uniform vec4 specular;\
+\
+varying vec4 nor;\
+varying vec4 dif;\
+varying vec4 spe;\
+varying vec2 uv;\
+\
+void main(void)\
+{\
+  nor = normal;\
+  spe = specular;\
+  dif = diffuse;\
+  uv = vec2(cat2.xy);\
+  gl_Position = gl_ModelViewProjectionMatrix * cat0;\
+}\
+"};
+
+static const GLchar *fshd_material_src[] = {"\
+uniform sampler2D tex0;\
+\
+varying vec4 nor;\
+varying vec4 dif;\
+varying vec4 spe;\
+varying vec2 uv;\
+\
+void main()\
+{\
+  vec4 color;\
+\
+  color = texture2D(tex0, uv);\
+\
+  gl_FragData[0] = vec4(nor);\
+  gl_FragData[1] = vec4(color*dif.xyz);\
+  gl_FragData[2] = vec4(spe);\
+}\
+"};
+
 static const GLchar *vshd_src[] = {"\
 attribute vec4 cat0;   \
 \

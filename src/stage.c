@@ -93,15 +93,55 @@ depth_unbind (struct DepthData *ds)
   glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
 }
 
+GLuint
+material_pass_program (void)
+{
+  GLint status;
+  GLuint vshd, fshd;
+  GLuint prog;
+
+  vshd = glCreateShader (GL_VERTEX_SHADER);
+  glShaderSource (vshd, 1, vshd_material_src, NULL);
+  glCompileShader (vshd);
+  
+  glGetShaderiv (vshd, GL_COMPILE_STATUS, &status);
+  g_xassert (GL_TRUE == status);
+
+  check_gl_error ();
+
+  fshd = glCreateShader (GL_VERTEX_SHADER);
+  glShaderSource (fshd, 1, fshd_material_src, NULL);
+  glCompileShader (fshd);
+  
+  glGetShaderiv (fshd, GL_COMPILE_STATUS, &status);
+  g_xassert (GL_TRUE == status);
+
+  check_gl_error ();
+
+  prog = glCreateProgram ();
+  glAttachShader (prog, vshd);
+  glAttachShader (prog, fshd);
+  glLinkProgram (prog);
+  
+  glGetProgramiv (prog, GL_LINK_STATUS, &status);
+  g_xassert (GL_TRUE == status);
+
+  check_gl_error ();
+
+  return prog;
+}
+
 void material_bind (struct MaterialData *ms)
 {
   ms->_cat0_loc = glGetAttribLocation (ms->mpp, "cat0");
   ms->_cat1_nor = glGetAttribLocation (ms->mpp, "cat1");
   ms->_cat2_tex = glGetAttribLocation (ms->mpp, "cat2");
+  ms->_tex0 = glGetUniformLocation (ms->mpp, "tex0");
 
   g_xassert (-1 != ms->_cat0_loc);
   g_xassert (-1 != ms->_cat1_nor);
   g_xassert (-1 != ms->_cat2_tex);
+  g_xassert (-1 != ms->_tex0);
   
   glEnableVertexAttribArray (ms->_cat0_loc);
   glEnableVertexAttribArray (ms->_cat1_nor);

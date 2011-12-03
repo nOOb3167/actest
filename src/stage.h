@@ -3,6 +3,7 @@
 #include <allegro5/allegro_opengl.h>
 
 int check_gl_error (void);
+
 GLuint depth_pass_program (void);
 
 struct DepthData
@@ -34,11 +35,14 @@ struct MaterialData
   GLuint _cat0_loc;
   GLuint _cat1_nor;
   GLuint _cat2_tex;
+  GLuint _tex0;
   
   /* GLuint vertb; */
   /* GLuint normb; */
   /* GLuint textb; */
 };
+
+GLuint material_pass_program (void);
 
 void material_bind (struct MaterialData *ms);
 void material_unbind (struct MaterialData *ms);

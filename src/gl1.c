@@ -456,6 +456,12 @@ derp (void)
 
   g_xassert (AI_SUCCESS ==
              aiGetMaterialColor (mat, AI_MATKEY_COLOR_SPECULAR, &col_spec));
+
+  /**
+   * Warning:
+   * Remember to unbind the depth texture from depth_stage fbo,
+   * Rebind it as texture for rendering. (Don't need to unbind?)
+   */
 }
 
 int
