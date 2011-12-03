@@ -15,6 +15,41 @@
 
 #include <src/vshd_src.h>
 
+/**
+ * Immediate mode
+ *
+ * Depends on Matrix state
+ * Depends on Viewport
+ * Depends on DrawBuffer? (Certainly can't do COLOR_ATTACHMENT with FBO 0)
+ * 
+ * Overwrites FRAMEBUFFER_BINDING
+ * Overwrites UseProgram
+ * Overwrites Texture state
+ * Overwrites Array state
+ */
+void
+debug_draw_tex_quad (GLuint tex, float x, float y, float w, float h)
+{
+  check_gl_error ();
+
+  glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
+
+  glActiveTexture (GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, tex);
+  glEnable (GL_TEXTURE_2D);
+  glUseProgram (0);
+  glDisableVertexAttribArray (0);
+
+  glBegin(GL_QUADS);
+  glTexCoord2f(0, 0); glVertex2f(x  , y  );
+  glTexCoord2f(1, 0); glVertex2f(x+w, y  );
+  glTexCoord2f(1, 1); glVertex2f(x+w, y+h);
+  glTexCoord2f(0, 1); glVertex2f(x  , y+h);
+  glEnd();
+
+  check_gl_error ();
+}
+
 int
 make_fbo (void)
 {
@@ -415,35 +450,8 @@ derp (void)
 
   depth_unbind (&ds);
 
-  check_gl_error ();
-
-  /**
-   * draw depth texture.
-   * Assume the previous stages did not mess the data up too much.
-   * In particular, assume the fbo binding was left unchanged,
-   * same for the PROJECTION and MODELVIEW matrix stacks.
-   */
-  glEnable (GL_TEXTURE_2D);
-  glUseProgram (0);
-
-  glBindTexture(GL_TEXTURE_2D, ctex);
-  glBegin(GL_QUADS);
-  glTexCoord2f(0, 0); glVertex2f(100, 0);
-  glTexCoord2f(1, 0); glVertex2f(200, 0);
-  glTexCoord2f(1, 1); glVertex2f(200, 100);
-  glTexCoord2f(0, 1); glVertex2f(100, 100);
-  glEnd();
-
-  glBindTexture(GL_TEXTURE_2D, dtex);
-  glBegin(GL_QUADS);
-  glTexCoord2f(0, 0); glVertex2f(100, 150);
-  glTexCoord2f(1, 0); glVertex2f(200, 150);
-  glTexCoord2f(1, 1); glVertex2f(200, 250);
-  glTexCoord2f(0, 1); glVertex2f(100, 250);
-  glEnd();
-
-  check_gl_error ();
-
+  debug_draw_tex_quad (ctex, 100, 0, 100, 100);
+  debug_draw_tex_quad (dtex, 100, 150, 100, 100);
 
   /**
    * Material stuff, move elsewhere or something.
