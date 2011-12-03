@@ -109,7 +109,7 @@ material_pass_program (void)
 
   check_gl_error ();
 
-  fshd = glCreateShader (GL_VERTEX_SHADER);
+  fshd = glCreateShader (GL_FRAGMENT_SHADER);
   glShaderSource (fshd, 1, fshd_material_src, NULL);
   glCompileShader (fshd);
   
@@ -124,7 +124,15 @@ material_pass_program (void)
   glLinkProgram (prog);
   
   glGetProgramiv (prog, GL_LINK_STATUS, &status);
-  g_xassert (GL_TRUE == status);
+  //g_xassert (GL_TRUE == status);
+  if (GL_TRUE != status)
+    {
+      GLsizei len;
+      GLchar infolog[2048];
+      glGetProgramInfoLog (prog, sizeof (infolog), &len, infolog);
+      printf ("DUMPING PROGRAM INFO LOG\n%s", infolog);
+      g_xassert (0);
+    }
 
   check_gl_error ();
 
@@ -137,11 +145,17 @@ void material_bind (struct MaterialData *ms)
   ms->_cat1_nor = glGetAttribLocation (ms->mpp, "cat1");
   ms->_cat2_tex = glGetAttribLocation (ms->mpp, "cat2");
   ms->_tex0 = glGetUniformLocation (ms->mpp, "tex0");
+  ms->_normal = glGetUniformLocation (ms->mpp, "normal");
+  ms->_diffuse = glGetUniformLocation (ms->mpp, "diffuse");
+  ms->_specular = glGetUniformLocation (ms->mpp, "specular");
 
   g_xassert (-1 != ms->_cat0_loc);
   g_xassert (-1 != ms->_cat1_nor);
   g_xassert (-1 != ms->_cat2_tex);
   g_xassert (-1 != ms->_tex0);
+  g_xassert (-1 != ms->_normal &&
+             -1 != ms->_diffuse &&
+             -1 != ms->_specular);
   
   glEnableVertexAttribArray (ms->_cat0_loc);
   glEnableVertexAttribArray (ms->_cat1_nor);

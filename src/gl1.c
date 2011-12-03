@@ -244,8 +244,12 @@ mesh_arrays_extract (struct aiMesh *me,
            * f,f,f
            * f,f,f
            * f,f,f
-           * One pass from this loop gets one f,f,f group.
+           * One pass from this loop loads one f,f,f group.
            * Need to advance by 3 each pass, to a total of 9.
+           *
+           * Similar for normals, but for tex coordinates,
+           * should probably depend on mNumUVComponents.
+           * IE source data is f,f load as f,f,0
            */
           struct aiVector3D *vt;
           struct aiVector3D *nr;
@@ -313,7 +317,7 @@ derp (void)
   const struct aiScene *csc;
   struct aiScene *sc;
   struct aiMesh *me;
-  GLuint ab;
+  GLuint vb, nb, tb;
   GLuint ctex;
   GLuint dtex;
   GLuint fbo;
@@ -332,8 +336,7 @@ derp (void)
 
   g_xassert (aiPrimitiveType_TRIANGLE == me->mPrimitiveTypes);
 
-  GLuint x1,x2;
-  mesh_buffers_extract (me, &ab, &x1, &x2);
+  mesh_buffers_extract (me, &vb, &nb, &tb);
 
   /* Create two textures, a color and a depth. */
 
@@ -381,7 +384,7 @@ derp (void)
 
   struct DepthData ds;
   ds.fbo = fbo;
-  ds.ab = ab;
+  ds.ab = vb;
   ds.dpp = dpp;
 
   depth_bind (&ds);
@@ -459,9 +462,60 @@ derp (void)
 
   /**
    * Warning:
-   * Remember to unbind the depth texture from depth_stage fbo,
+   * Remember to unbind the depth texture (dtex) from depth_stage fbo,
    * Rebind it as texture for rendering. (Don't need to unbind?)
    */
+  struct MaterialData ms;
+  ms.fbo = fbo;
+  ms.ctex = ctex; /* Load the mesh texture somehow, dummy for now */
+  ms.dtex = dtex;
+  ms.mpp = material_pass_program ();
+  ms.vb = vb;
+  ms.nb = nb;
+  ms.tb = tb;
+
+  material_bind (&ms);
+
+  {
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
+    //gluPerspective (45.0f, 1.0f, 0.1f, 10.1f);
+
+
+    GLenum material_draw_buffers[] = {GL_COLOR_ATTACHMENT0,
+                                      GL_COLOR_ATTACHMENT1,
+                                      GL_COLOR_ATTACHMENT2};
+    glDrawBuffers (3, material_draw_buffers);
+
+    glBindBuffer (GL_ARRAY_BUFFER, ms.vb);
+    glVertexAttribPointer (ms._cat0_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer (GL_ARRAY_BUFFER, ms.nb);
+    glVertexAttribPointer (ms._cat1_nor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer (GL_ARRAY_BUFFER, ms.tb);
+    glVertexAttribPointer (ms._cat2_tex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    /**
+     * Texture unit 0,
+     * make sure diffuse / color texture is glBindTexture'd
+     * while glActiveTexture is zero.
+     */
+    glUniform1i (ms._tex0, 0);
+    
+    glActiveTexture (0);
+    glEnable (GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, ms.ctex);
+
+    glUseProgram (ms.mpp);
+    glDrawArrays (GL_TRIANGLES, 0, me->mNumFaces * 3);
+    glUseProgram (0);
+
+    glMatrixMode (GL_PROJECTION);
+    glPopMatrix ();
+  }
+
+  material_unbind (&ms);
 }
 
 int

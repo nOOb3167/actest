@@ -32,10 +32,15 @@ struct MaterialData
   GLuint dtex;
   GLuint mpp;
 
+  GLuint vb;
+  GLuint nb;
+  GLuint tb;
+
   GLuint _cat0_loc;
   GLuint _cat1_nor;
   GLuint _cat2_tex;
   GLuint _tex0;
+  GLuint _normal, _diffuse, _specular;
   
   /* GLuint vertb; */
   /* GLuint normb; */
