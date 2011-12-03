@@ -9,7 +9,7 @@ LT_LANG([C])
 PKG_PROG_PKG_CONFIG
 
 PKG_CHECK_MODULES([GTK2], [gtk+-2.0 gthread-2.0 cairo cairo-png])
-PKG_CHECK_MODULES([AL], [allegro-5.1])
+PKG_CHECK_MODULES([AL], [allegro-5.1 allegro_image-5.1])
 PKG_CHECK_MODULES([AI], [assimp])
 #PKG_CHECK_MODULES([COGL], [cogl-2.0])
 #PKG_CHECK_MODULES([LUA52], [lua52])

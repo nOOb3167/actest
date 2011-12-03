@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_opengl.h>
+#include <allegro5/allegro_image.h>
 #include <assert.h>
 
 #include <assimp.h>
@@ -14,6 +15,9 @@
 #define xassert(exp) do { ((exp)?0:++(*((char *)0x00000010))); } while (0)
 
 #include <src/vshd_src.h>
+
+ALLEGRO_BITMAP *blender_bmp;
+GLuint blender_tex;
 
 /**
  * Immediate mode
@@ -541,6 +545,7 @@ main (int argc, char **argv)
   g_type_init ();
   
   al_init ();
+  al_init_image_addon ();
 
   al_set_new_display_option (ALLEGRO_RED_SIZE, 8,  ALLEGRO_REQUIRE);
   al_set_new_display_option (ALLEGRO_GREEN_SIZE, 8, ALLEGRO_REQUIRE);
@@ -561,6 +566,14 @@ main (int argc, char **argv)
   al_set_target_backbuffer (disp);
 
   printf ("OPENGL %x\n", al_get_opengl_version ());
+
+
+  blender_bmp = al_load_bitmap ("../data/n1img0.bmp");
+  g_xassert (640 == al_get_bitmap_width (blender_bmp) &&
+             480 == al_get_bitmap_height (blender_bmp));
+  blender_tex = al_get_opengl_texture (blender_bmp);
+  g_xassert (blender_tex);
+
 
   GLint glvar;
   /* Query GL_MAX_DRAW_BUFFERS, GL_MAX_COLOR_ATTACHMENTS */
