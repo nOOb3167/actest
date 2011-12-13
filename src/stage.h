@@ -25,6 +25,14 @@ struct DepthData
 void depth_bind (struct DepthData *ds);
 void depth_unbind (struct DepthData *ds);
 
+struct MaterialFbo
+{
+  GLuint tdep;
+  
+  GLuint _fbo;
+  GLuint _tnor, _tdiff, _tspec;
+};
+
 struct MaterialData
 {
   GLuint fbo;
@@ -47,6 +55,7 @@ struct MaterialData
   /* GLuint textb; */
 };
 
+void material_create_fbo (struct MaterialFbo *ms);
 GLuint material_pass_program (void);
 
 void material_bind (struct MaterialData *ms);

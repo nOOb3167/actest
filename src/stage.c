@@ -139,7 +139,58 @@ material_pass_program (void)
   return prog;
 }
 
-void material_bind (struct MaterialData *ms)
+void
+material_create_fbo (struct MaterialFbo *ms)
+{
+  g_xassert (ms->tdep);
+
+  glGenTextures (1, &ms->_tnor);
+  glActiveTexture (GL_TEXTURE0);
+  glBindTexture (GL_TEXTURE_2D, ms->_tnor);
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8,
+		640, 480, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		NULL);
+
+  glGenTextures (1, &ms->_tdiff);
+  glActiveTexture (GL_TEXTURE0);
+  glBindTexture (GL_TEXTURE_2D, ms->_tdiff);
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8,
+		640, 480, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		NULL);
+
+  glGenTextures (1, &ms->_tspec);
+  glActiveTexture (GL_TEXTURE0);
+  glBindTexture (GL_TEXTURE_2D, ms->_tspec);
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8,
+		640, 480, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		NULL);
+
+  glGenFramebuffersEXT (1, &ms->_fbo);
+  glBindFramebufferEXT (GL_FRAMEBUFFER, ms->_fbo);
+  glFramebufferTexture2DEXT (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			     GL_TEXTURE_2D, ms->_tnor, 0);
+  glFramebufferTexture2DEXT (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
+			     GL_TEXTURE_2D, ms->_tdiff, 0);
+  glFramebufferTexture2DEXT (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2,
+			     GL_TEXTURE_2D, ms->_tspec, 0);
+  glFramebufferTexture2DEXT (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+			     GL_TEXTURE_2D, ms->tdep, 0);
+  
+  g_xassert (GL_FRAMEBUFFER_COMPLETE ==
+	   glCheckFramebufferStatusEXT (GL_FRAMEBUFFER));
+}
+
+void
+material_bind (struct MaterialData *ms)
 {
   ms->_cat0_loc = glGetAttribLocation (ms->mpp, "cat0");
   ms->_cat1_nor = glGetAttribLocation (ms->mpp, "cat1");
@@ -165,6 +216,7 @@ void material_bind (struct MaterialData *ms)
   glViewport (0, 0, 640, 480);
 }
 
-void material_unbind (struct MaterialData *ms)
+void
+material_unbind (struct MaterialData *ms)
 {
 }

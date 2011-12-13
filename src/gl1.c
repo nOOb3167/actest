@@ -295,13 +295,22 @@ derp (void)
   g_xassert (AI_SUCCESS ==
              aiGetMaterialColor (mat, AI_MATKEY_COLOR_SPECULAR, &col_spec));
 
+  struct MaterialFbo mf = {0};
+  mf.tdep = dtex;
+
+  material_create_fbo (&mf);
+
   /**
    * Warning:
    * Remember to unbind the depth texture (dtex) from depth_stage fbo,
    * Rebind it as texture for rendering. (Don't need to unbind?)
+   * (4.4.2) ""A single framebuffer-attachable image may be attached
+   * to multiple framebuffer objects""
+   * Not sure about whether unbind required.
+   * (4.4.3) Warns about Feedback loops, which do apply.
    */
-  struct MaterialData ms;
-  ms.fbo = fbo;
+  struct MaterialData ms = {0};
+  ms.fbo = mf._fbo;
   ms.ctex = blender_tex;
   ms.dtex = dtex;
   ms.mpp = material_pass_program ();
@@ -362,7 +371,10 @@ derp (void)
    * In any case ctex probably ends up as normals.
    * Creating a new FBO for the material stage is probably ok.
    */
-  debug_draw_tex_quad (ctex, 200, 0, 100, 100);
+  //debug_draw_tex_quad (ctex, 200, 0, 100, 100);
+  debug_draw_tex_quad (mf._tnor, 200, 0, 100, 100);
+  debug_draw_tex_quad (mf._tdiff, 200, 110, 100, 100);
+  debug_draw_tex_quad (mf._tspec, 200, 220, 100, 100);
 }
 
 int
