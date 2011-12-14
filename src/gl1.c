@@ -351,6 +351,10 @@ derp (void)
     glUniform1i (ms._tex0, 0);
 
     /* Also go load diffuse, specular out of the aiColor4Ds */
+    glUniform4f (ms._diffuse,
+                 col_diff.r, col_diff.g, col_diff.b, col_diff.a);
+    glUniform4f (ms._specular,
+                 col_spec.r, col_spec.g, col_spec.b, col_spec.a);
     
     glActiveTexture (GL_TEXTURE0);
     glEnable (GL_TEXTURE_2D);
