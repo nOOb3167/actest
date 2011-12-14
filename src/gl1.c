@@ -374,6 +374,17 @@ derp (void)
    * I believe I don't have the right COLOR_ATTACHMENTs during material stage.
    * In any case ctex probably ends up as normals.
    * Creating a new FBO for the material stage is probably ok.
+   *
+   * Warning:
+   * For unknown reason the model, automaticall unwrapped by Blender
+   * (Select all faces -> U -> Unwrap) had its UV coordinates screwed up.
+   * Re-exporting with a proper UV map somehow fixed the problem.
+   *
+   * Blender settings: (Texure Properties)
+   * Image/Source: Single Image
+   * Mapping/Coordinates: UV
+   * Mapping Layer: (Empty)
+   * Mapping/Projection: Flat
    */
   //debug_draw_tex_quad (ctex, 200, 0, 100, 100);
   debug_draw_tex_quad (mf._tnor, 200, 0, 100, 100);
