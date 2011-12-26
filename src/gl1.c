@@ -414,7 +414,7 @@ derp (void)
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     glLoadIdentity ();
-    glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
+    //glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
     gluPerspective (45.0f, 1.0f, 0.1f, 3.0f);
 
     glMatrixMode (GL_MODELVIEW);
