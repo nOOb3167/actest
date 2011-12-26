@@ -4,6 +4,7 @@
 #include <allegro5/allegro_opengl.h>
 #include <allegro5/allegro_image.h>
 #include <assert.h>
+#include <GL/glu.h>
 
 #include <assimp.h>
 #include <aiScene.h>
@@ -167,6 +168,53 @@ mesh_buffers_extract (struct aiMesh *me,
   *tb_out = tb;
 }
 
+#define RESTORE_MODE_SAVE 1
+#define RESTORE_MODE_RESTORE 2
+
+void
+allegro_ffp_restore (int mode)
+{
+  static float pr[16] = {0},
+               mv[16] = {0};
+  static float vp[4] = {0};
+
+  if (RESTORE_MODE_SAVE == mode)
+    {
+      int prd, mvd;
+
+      glGetIntegerv (GL_MODELVIEW_STACK_DEPTH, &mvd);
+      glGetIntegerv (GL_PROJECTION_STACK_DEPTH, &prd);
+      g_xassert (1 == prd && 1 == mvd);
+
+      glGetFloatv (GL_VIEWPORT, vp);
+      glGetFloatv (GL_MODELVIEW_MATRIX, mv);
+      glGetFloatv (GL_PROJECTION_MATRIX, pr);
+    }
+  else if (RESTORE_MODE_RESTORE == mode)
+    {
+      int prd, mvd;
+
+      glGetIntegerv (GL_MODELVIEW_STACK_DEPTH, &mvd);
+      glGetIntegerv (GL_PROJECTION_STACK_DEPTH, &prd);
+      g_xassert (1 == prd && 1 == mvd);
+
+      glViewport (vp[0], vp[1], vp[2], vp[3]);
+
+      {
+        int mm;
+
+        glGetIntegerv (GL_MATRIX_MODE, &mm);
+        glMatrixMode (GL_MODELVIEW);
+        glLoadMatrixf (mv);
+        glMatrixMode (GL_PROJECTION);
+        glLoadMatrixf (pr);
+        glMatrixMode (mm);
+      }
+    }
+  else
+    xassert (0);
+}
+
 void
 derp (void)
 {
@@ -193,6 +241,34 @@ derp (void)
   g_xassert (aiPrimitiveType_TRIANGLE == me->mPrimitiveTypes);
 
   mesh_buffers_extract (me, &vb, &nb, &tb);
+
+  /* Save Viewport, Modelview, Projection.
+   * Then set them to sane defaults.
+   *
+   * Empirical test indicates projection set to Ortho,
+   * Modelview set to Identity, Viewport set to 0,0,w,h.
+   *
+   * ModelView and Viewport are fine but Projection has to go,
+   * as I plan setting it myself.
+   */
+
+  allegro_ffp_restore (RESTORE_MODE_SAVE);
+
+  /*
+   * Do not do this...
+   * While it is useful to play it safe and save & restore viewport/mst,
+   * I am not actually supposed to set over allegro's stuff, right?
+   * Actually:
+   *    Need to use allegro's original settings when using the
+   *    drawing routines targeting framebuffer 0. (eg debug_draw_tex_quad)
+   * It is correct to LoadIdentity the projection stack,
+   * but fix said routines to use allegro state.
+   */
+  /*
+  glMatrixMode (GL_PROJECTION);
+  glLoadIdentity ();
+  glMatrixMode (GL_MODELVIEW);
+  */
 
   /* Clear the default framebuffer (Optional) */
 
@@ -255,9 +331,13 @@ derp (void)
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     glLoadIdentity ();
-    glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
-    //gluPerspective (45.0f, 1.0f, 0.1f, 10.1f);
+    //glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
+    gluPerspective (45.0f, 1.0f, 0.1f, 3.0f);
 
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glTranslatef (0.0f, 0.0f, -2.0f);
 
     glDrawBuffer (GL_COLOR_ATTACHMENT0);
     glClear (GL_DEPTH_BUFFER_BIT);
@@ -270,6 +350,9 @@ derp (void)
     glUseProgram (0);
 
     glMatrixMode (GL_PROJECTION);
+    glPopMatrix ();
+
+    glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
   }
 
@@ -325,8 +408,12 @@ derp (void)
     glPushMatrix ();
     glLoadIdentity ();
     glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
-    //gluPerspective (45.0f, 1.0f, 0.1f, 10.1f);
+    gluPerspective (45.0f, 1.0f, 0.1f, 3.0f);
 
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glTranslatef (0.0f, 0.0f, -2.0f);
 
     GLenum material_draw_buffers[] = {GL_COLOR_ATTACHMENT0,
                                       GL_COLOR_ATTACHMENT1,
@@ -366,6 +453,9 @@ derp (void)
 
     glMatrixMode (GL_PROJECTION);
     glPopMatrix ();
+
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
   }
 
   material_unbind (&ms);
@@ -390,6 +480,10 @@ derp (void)
   debug_draw_tex_quad (mf._tnor, 200, 0, 100, 100);
   debug_draw_tex_quad (mf._tdiff, 200, 110, 100, 100);
   debug_draw_tex_quad (mf._tspec, 200, 220, 100, 100);
+
+  /* Restore the saved allegro settings */
+
+  allegro_ffp_restore (RESTORE_MODE_RESTORE);
 }
 
 int

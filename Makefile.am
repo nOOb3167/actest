@@ -14,4 +14,4 @@ dist_data_DATA = help
 bin_PROGRAMS += gl1
 gl1_SOURCES = src/gl1.c src/error.c src/stage.c
 gl1_CFLAGS = ${GTK2_CFLAGS} ${AL_CFLAGS} ${AI_CFLAGS} ${AM_CFLAGS}
-gl1_LDADD = ${GTK2_LIBS} ${AL_LIBS} ${AI_LIBS} -lGL
+gl1_LDADD = ${GTK2_LIBS} ${AL_LIBS} ${AI_LIBS} -lGL -lGLU
