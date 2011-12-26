@@ -12,8 +12,7 @@
 #include <src/error.h>
 /* #include <src/mai-model.h> */
 #include <src/stage.h>
-
-#define xassert(exp) do { ((exp)?0:++(*((char *)0x00000010))); } while (0)
+#include <src/gl1.h>
 
 #include <src/vshd_src.h>
 
@@ -23,8 +22,12 @@ GLuint blender_tex;
 /**
  * Immediate mode
  *
- * Depends on Matrix state
- * Depends on Viewport
+ * While it:
+ *   Depends on Matrix state
+ *   Depends on Viewport
+ *   The code does attempt to save those with a call to allegro_ffp_restore.
+ *   allegro_ffp_restore RESTORE_SUB_ALLEGRO must have been initialized.
+ *
  * Depends on DrawBuffer? (Certainly can't do COLOR_ATTACHMENT with FBO 0)
  * 
  * Overwrites FRAMEBUFFER_BINDING
@@ -35,6 +38,9 @@ GLuint blender_tex;
 void
 debug_draw_tex_quad (GLuint tex, float x, float y, float w, float h)
 {
+  allegro_ffp_restore (RESTORE_MODE_SAVE, RESTORE_SUB_CUSTOM);
+  allegro_ffp_restore (RESTORE_MODE_RESTORE, RESTORE_SUB_ALLEGRO);
+
   check_gl_error ();
 
   glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
@@ -51,6 +57,8 @@ debug_draw_tex_quad (GLuint tex, float x, float y, float w, float h)
   glTexCoord2f(1, 1); glVertex2f(x+w, y+h);
   glTexCoord2f(0, 1); glVertex2f(x  , y+h);
   glEnd();
+
+  allegro_ffp_restore (RESTORE_MODE_RESTORE, RESTORE_SUB_CUSTOM);
 
   check_gl_error ();
 }
@@ -168,15 +176,15 @@ mesh_buffers_extract (struct aiMesh *me,
   *tb_out = tb;
 }
 
-#define RESTORE_MODE_SAVE 1
-#define RESTORE_MODE_RESTORE 2
-
 void
-allegro_ffp_restore (int mode)
+allegro_ffp_restore (int mode, int sub)
 {
-  static float pr[16] = {0},
-               mv[16] = {0};
-  static float vp[4] = {0};
+  static float pr[2][16] = {0},
+               mv[2][16] = {0};
+  static float vp[2][4] = {0};
+
+  g_xassert (RESTORE_SUB_ALLEGRO == sub ||
+             RESTORE_SUB_CUSTOM == sub);
 
   if (RESTORE_MODE_SAVE == mode)
     {
@@ -185,10 +193,10 @@ allegro_ffp_restore (int mode)
       glGetIntegerv (GL_MODELVIEW_STACK_DEPTH, &mvd);
       glGetIntegerv (GL_PROJECTION_STACK_DEPTH, &prd);
       g_xassert (1 == prd && 1 == mvd);
-
-      glGetFloatv (GL_VIEWPORT, vp);
-      glGetFloatv (GL_MODELVIEW_MATRIX, mv);
-      glGetFloatv (GL_PROJECTION_MATRIX, pr);
+        
+      glGetFloatv (GL_VIEWPORT, vp[sub]);
+      glGetFloatv (GL_MODELVIEW_MATRIX, mv[sub]);
+      glGetFloatv (GL_PROJECTION_MATRIX, pr[sub]);
     }
   else if (RESTORE_MODE_RESTORE == mode)
     {
@@ -198,16 +206,16 @@ allegro_ffp_restore (int mode)
       glGetIntegerv (GL_PROJECTION_STACK_DEPTH, &prd);
       g_xassert (1 == prd && 1 == mvd);
 
-      glViewport (vp[0], vp[1], vp[2], vp[3]);
+      glViewport (vp[sub][0], vp[sub][1], vp[sub][2], vp[sub][3]);
 
       {
         int mm;
 
         glGetIntegerv (GL_MATRIX_MODE, &mm);
         glMatrixMode (GL_MODELVIEW);
-        glLoadMatrixf (mv);
+        glLoadMatrixf (mv[sub]);
         glMatrixMode (GL_PROJECTION);
-        glLoadMatrixf (pr);
+        glLoadMatrixf (pr[sub]);
         glMatrixMode (mm);
       }
     }
@@ -252,7 +260,7 @@ derp (void)
    * as I plan setting it myself.
    */
 
-  allegro_ffp_restore (RESTORE_MODE_SAVE);
+  allegro_ffp_restore (RESTORE_MODE_SAVE, RESTORE_SUB_ALLEGRO);
 
   /*
    * Do not do this...
@@ -264,11 +272,10 @@ derp (void)
    * It is correct to LoadIdentity the projection stack,
    * but fix said routines to use allegro state.
    */
-  /*
+
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
   glMatrixMode (GL_MODELVIEW);
-  */
 
   /* Clear the default framebuffer (Optional) */
 
@@ -483,7 +490,7 @@ derp (void)
 
   /* Restore the saved allegro settings */
 
-  allegro_ffp_restore (RESTORE_MODE_RESTORE);
+  allegro_ffp_restore (RESTORE_MODE_RESTORE, RESTORE_SUB_ALLEGRO);
 }
 
 int

@@ -1,3 +1,6 @@
+#ifndef STAGE_H_
+#define STAGE_H_
+
 #include <glib.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_opengl.h>
@@ -60,3 +63,5 @@ GLuint material_pass_program (void);
 
 void material_bind (struct MaterialData *ms);
 void material_unbind (struct MaterialData *ms);
+
+#endif /* STAGE_H_ */
