@@ -64,4 +64,27 @@ GLuint material_pass_program (void);
 void material_bind (struct MaterialData *ms);
 void material_unbind (struct MaterialData *ms);
 
+struct LightingFbo
+{
+  GLuint tdep;
+  
+  GLuint _fbo;
+  GLuint _tres;
+};
+
+struct LightingData
+{
+  GLuint fbo;
+  GLuint lpp;
+
+  GLuint dtex;
+  GLuint tnor, tdiff, tspec;
+};
+
+void lighting_create_fbo (struct LightingFbo *ls);
+GLuint lighting_pass_program (void);
+
+void lighting_bind (struct LightingData *ls);
+void lighting_unbind (struct LightingData *ls);
+
 #endif /* STAGE_H_ */

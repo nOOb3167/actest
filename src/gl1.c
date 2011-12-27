@@ -489,6 +489,25 @@ derp (void)
   debug_draw_tex_quad (mf._tspec, 200, 220, 100, 100);
 
   /* 3.4 Lighting Stage */
+  struct LightingFbo lf = {0};
+  lf.tdep = dtex;
+
+  lighting_create_fbo (&lf);
+
+  struct LightingData ls = {0};
+  ls.fbo = lf._fbo;
+  ls.lpp = lighting_ambient_pass_program ();
+  ls.dtex = dtex;
+  ls.tnor = mf._tnor;
+  ls.tdiff = mf._tdiff;
+  ls.tspec = mf._tspec;
+
+  lighting_bind (&ls);
+
+  {
+  }
+
+  lighting_unbind (&ls);
 
   /* Restore the saved allegro settings */
 

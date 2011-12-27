@@ -71,8 +71,24 @@ void main(void)\
 }\
 "};
 
+static const GLchar *vshd_lighting_ambient_src[] = {"\
+attribute vec4 cat0;\
+void main(void)\
+{\
+  gl_Position = gl_ModelViewProjectionMatrix * cat0;\
+}\
+"};
+
+static const GLchar *fshd_lighting_ambient_src[] = {"\
+attribute vec4 cat0;\
+void main(void)\
+{\
+  gl_FragData[0] = vec4(1.0, 0.0, 0.0, 1.0);\
+}\
+"};
+
 static const GLchar *vshd_src[] = {"\
-attribute vec4 cat0;   \
+attribute vec4 cat0;\
 \
 void main(void)\
 {\

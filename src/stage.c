@@ -225,3 +225,86 @@ material_unbind (struct MaterialData *ms)
   glDisableVertexAttribArray (ms->_cat2_tex);
   glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
 }
+
+GLuint
+lighting_ambient_pass_program (void)
+{
+  GLint status;
+  GLuint vshd, fshd;
+  GLuint prog;
+
+  vshd = glCreateShader (GL_VERTEX_SHADER);
+  glShaderSource (vshd, 1, vshd_lighting_ambient_src, NULL);
+  glCompileShader (vshd);
+
+  glGetShaderiv (vshd, GL_COMPILE_STATUS, &status);
+  g_xassert (GL_TRUE == status);
+
+  check_gl_error ();
+
+  fshd = glCreateShader (GL_FRAGMENT_SHADER);
+  glShaderSource (fshd, 1, fshd_lighting_ambient_src, NULL);
+  glCompileShader (fshd);
+
+  glGetShaderiv (fshd, GL_COMPILE_STATUS, &status);
+  g_xassert (GL_TRUE == status);
+
+  check_gl_error ();
+
+  prog = glCreateProgram ();
+  glAttachShader (prog, vshd);
+  glAttachShader (prog, fshd);
+  glLinkProgram (prog);
+
+  glGetProgramiv (prog, GL_LINK_STATUS, &status);
+  //g_xassert (GL_TRUE == status);
+  if (GL_TRUE != status)
+    {
+      GLsizei len;
+      GLchar infolog[2048];
+      glGetProgramInfoLog (prog, sizeof (infolog), &len, infolog);
+      printf ("DUMPING PROGRAM INFO LOG\n%s", infolog);
+      g_xassert (0);
+    }
+
+  check_gl_error ();
+
+  return prog;
+}
+
+void
+lighting_create_fbo (struct LightingFbo *ls)
+{
+  g_xassert (ls->tdep);
+
+  glGenTextures (1, &ls->_tres);
+  glActiveTexture (GL_TEXTURE0);
+  glBindTexture (GL_TEXTURE_2D, ls->_tres);
+  glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8,
+		640, 480, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		NULL);
+
+  glGenFramebuffersEXT (1, &ls->_fbo);
+  glBindFramebufferEXT (GL_FRAMEBUFFER, ls->_fbo);
+  glFramebufferTexture2DEXT (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			     GL_TEXTURE_2D, ls->_tres, 0);
+  glFramebufferTexture2DEXT (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+			     GL_TEXTURE_2D, ls->tdep, 0);
+
+  g_xassert (GL_FRAMEBUFFER_COMPLETE ==
+	   glCheckFramebufferStatusEXT (GL_FRAMEBUFFER));
+}
+
+void
+lighting_bind (struct LightingData *ls)
+{
+
+}
+
+void
+lighting_unbind (struct LightingData *ls)
+{
+}
