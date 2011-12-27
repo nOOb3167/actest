@@ -1,0 +1,29 @@
+Assuming Allegro initially loads an Ortho,
+loading a Perspective over that... Is not the brightest idea
+
+Sanitycheck their Viewport, Projection, ModelView
+
+Positive X Right
+Positive Z Down
+Positive Y Inbound
+
+--
+Notice there is a regression
+from 7b40e77457b41c3dc565f6078d5d1f20f1906862
+to where gluPerspective is first used:
+The depth texture (dtex) draws as full white.
+Which is 'solved' by... err 90 FOV, 1.0 nearplane, 5.0 farplane apparently.
+
+Remember the shape of z_eye to z_w mapping function.
+With the original 0.1 nearplane, 10.0 farplane, it is possible that the
+cube (translated on z-axis by -3.8, with min coordinate -1, max coordinate +1)
+was far enough in for the values to be indistingishable from pure white while
+rendering.
+
+With the z-buffer texture being 24-bit Depth Component,
+and the framebuffer being 8-bit RGB Components,
+24-8=16, 2^16 z-buffer values map to the same RGB color.
+
+RGB 0 = 0, 1 = 2^8 || DC 0 = 0, 1 = 2^24
+RGB 1/256 = 2^8 / 2^8 = 1 || DC 1/256 = 2^24 / 2^8
+--

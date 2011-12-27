@@ -339,12 +339,12 @@ derp (void)
     glPushMatrix ();
     glLoadIdentity ();
     //glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
-    gluPerspective (45.0f, 1.0f, 0.1f, 10.0f);
+    gluPerspective (90.0f, 1.0f, 1.0f, 5.0f);
 
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     glLoadIdentity ();
-    glTranslatef (0.0f, 0.0f, -3.8f);
+    glTranslatef (0.0f, 0.0f, -2.5f);
 
     glDrawBuffer (GL_COLOR_ATTACHMENT0);
     glClear (GL_DEPTH_BUFFER_BIT);
@@ -415,12 +415,12 @@ derp (void)
     glPushMatrix ();
     glLoadIdentity ();
     //glOrtho (-2.5, 2.5, -2.5, 2.5, -5, 5);
-    gluPerspective (45.0f, 1.0f, 0.1f, 10.0f);
+    gluPerspective (90.0f, 1.0f, 1.0f, 5.0f);
 
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     glLoadIdentity ();
-    glTranslatef (0.0f, 0.0f, -3.8f);
+    glTranslatef (0.0f, 0.0f, -2.5f);
 
     GLenum material_draw_buffers[] = {GL_COLOR_ATTACHMENT0,
                                       GL_COLOR_ATTACHMENT1,
