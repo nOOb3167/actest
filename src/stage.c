@@ -219,4 +219,9 @@ material_bind (struct MaterialData *ms)
 void
 material_unbind (struct MaterialData *ms)
 {
+  glPopAttrib ();
+  glDisableVertexAttribArray (ms->_cat0_loc);
+  glDisableVertexAttribArray (ms->_cat1_nor);
+  glDisableVertexAttribArray (ms->_cat2_tex);
+  glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
 }

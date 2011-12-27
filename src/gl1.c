@@ -488,6 +488,8 @@ derp (void)
   debug_draw_tex_quad (mf._tdiff, 200, 110, 100, 100);
   debug_draw_tex_quad (mf._tspec, 200, 220, 100, 100);
 
+  /* 3.4 Lighting Stage */
+
   /* Restore the saved allegro settings */
 
   allegro_ffp_restore (RESTORE_MODE_RESTORE, RESTORE_SUB_ALLEGRO);
